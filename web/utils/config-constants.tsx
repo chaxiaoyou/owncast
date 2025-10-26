@@ -159,9 +159,9 @@ export const TEXTFIELD_PROPS_RTMP_PORT = {
   apiPath: API_RTMP_PORT,
   configPath: '',
   maxLength: 6,
-  placeholder: '1935',
+  placeholder: '10080',
   label: 'RTMP port',
-  tip: 'What port should accept inbound broadcasts? Default is 1935',
+  tip: 'What port should accept inbound broadcasts? Default is 10080',
   required: true,
   hasComplexityRequirements: false,
 };

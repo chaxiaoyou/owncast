@@ -77,7 +77,7 @@ func Start() error {
 	go rtmp.Start(setStreamAsConnected, setBroadcaster)
 
 	rtmpPort := configRepository.GetRTMPPortNumber()
-	if rtmpPort != 1935 {
+	if rtmpPort != 10080 {
 		log.Infof("RTMP is accepting inbound streams on port %d.", rtmpPort)
 	}
 

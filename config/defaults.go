@@ -83,7 +83,7 @@ func GetDefaults() Defaults {
 
 		WebServerPort:  8080,
 		WebServerIP:    "0.0.0.0",
-		RTMPServerPort: 1935,
+		RTMPServerPort: 10080,
 
 		ChatEstablishedUserModeTimeDuration: time.Minute * 15,
 

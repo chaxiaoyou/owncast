@@ -34,4 +34,4 @@ RUN mkdir /app/data
 RUN chown -R owncast:owncast /app
 USER owncast
 ENTRYPOINT ["/app/owncast"]
-EXPOSE 8080 1935
+EXPOSE 8080 10080

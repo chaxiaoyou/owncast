@@ -50,7 +50,7 @@ const i18n = {
     vi,
     zh,
   },
-  defaultLang: 'en',
+  defaultLang: 'zh',
   useBrowserDefault: true,
   // optional property, will default to "query" if not set
   languageDataStore: 'query' || 'localStorage',
