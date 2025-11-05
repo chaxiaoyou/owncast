@@ -376,6 +376,7 @@ export const ChatContainer: FC<ChatContainerProps> = ({
           if (tokenParam) setRcToken(tokenParam);
         }
       } catch (e) {
+        console.log(e);
         // ignore malformed URL
       }
 
@@ -384,7 +385,6 @@ export const ChatContainer: FC<ChatContainerProps> = ({
         setRcHost(process.env.NEXT_PUBLIC_ROCKETCHAT_HOST);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (resizeWindowCallback) window.removeEventListener('resize', resizeWindowCallback);

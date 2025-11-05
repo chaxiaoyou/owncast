@@ -4,7 +4,7 @@
 # 配置项
 # -----------------------------
 REMOTE_USER="root"                # 服务器用户名
-REMOTE_HOST="47.251.244.157"               # 服务器 IP
+REMOTE_HOST="47.84.0.225"               # 服务器 IP
 REMOTE_WEBROOT="/var/owncast/webroot"  # Owncast webroot
 SSH_PORT=22                           # SSH 端口，默认22
 LOCAL_BUILD_DIR="./out"               # 前端导出目录
@@ -15,7 +15,7 @@ FRONTEND_DIR="./web"               # Owncast 前端源码目录
 # -----------------------------cd 
 echo "Step 1: Build and export frontend..."
 cd "$FRONTEND_DIR" || { echo "Frontend directory not found!"; exit 1; }
-# npm run build || { echo "npm run build failed!"; exit 1; }
+npm run build || { echo "npm run build failed!"; exit 1; }
 
 # -----------------------------
 # 上传文件
