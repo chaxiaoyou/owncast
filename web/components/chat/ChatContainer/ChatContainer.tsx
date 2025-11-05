@@ -33,6 +33,14 @@ export type ChatContainerProps = {
   chatAvailable: boolean;
   focusInput?: boolean;
   desktop?: boolean;
+  // Optional Rocket.Chat iframe integration. If provided (or present via URL params)
+  // the component will render an iframe pointing at the Rocket.Chat instance
+  // instead of the built-in chat UI. The parent can pass the host, group (room)
+  // and token. If not passed, the component will attempt to read from URL
+  // query params: `rocket_chat_host`, `group` and `token`.
+  rocketChatHost?: string;
+  rocketChatGroup?: string;
+  rocketChatToken?: string;
 };
 
 let resizeWindowCallback: () => void;
@@ -84,6 +92,9 @@ export const ChatContainer: FC<ChatContainerProps> = ({
   chatAvailable: chatEnabled,
   desktop,
   focusInput = true,
+  rocketChatHost,
+  rocketChatGroup,
+  rocketChatToken,
 }) => {
   const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -336,6 +347,46 @@ export const ChatContainer: FC<ChatContainerProps> = ({
   }
   const lastMessage = getLastMessage();
 
+  // Rocket.Chat iframe integration: decide at runtime whether to render
+  // an embedded Rocket.Chat iframe. We support passing values via props or
+  // via URL query params so embed pages can include `?group=...&token=...&rocket_chat_host=...`.
+  const [rcHost, setRcHost] = useState<string | null>(null);
+  const [rcGroup, setRcGroup] = useState<string | null>(null);
+  const [rcToken, setRcToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Prefer props, fallback to URL params, then to env var NEXT_PUBLIC_ROCKETCHAT_HOST
+    if (rocketChatHost) setRcHost(rocketChatHost);
+    if (rocketChatGroup) setRcGroup(rocketChatGroup);
+    if (rocketChatToken) setRcToken(rocketChatToken);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (!rocketChatHost) {
+          const hostParam = params.get('rocket_chat_host') || params.get('rocketchat_host');
+          if (hostParam) setRcHost(hostParam);
+        }
+        if (!rocketChatGroup) {
+          const groupParam = params.get('group') || params.get('room');
+          if (groupParam) setRcGroup(groupParam);
+        }
+        if (!rocketChatToken) {
+          const tokenParam = params.get('token') || params.get('rocket_chat_token');
+          if (tokenParam) setRcToken(tokenParam);
+        }
+      } catch (e) {
+        // ignore malformed URL
+      }
+
+      // If still not set, try environment variable for host
+      if (!rocketChatHost && !rcHost && process?.env?.NEXT_PUBLIC_ROCKETCHAT_HOST) {
+        setRcHost(process.env.NEXT_PUBLIC_ROCKETCHAT_HOST);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (resizeWindowCallback) window.removeEventListener('resize', resizeWindowCallback);
   if (desktop) {
     window.addEventListener('resize', resize);
@@ -355,22 +406,39 @@ export const ChatContainer: FC<ChatContainerProps> = ({
         />
       )}
     >
-      <div
-        aria-live="off"
-        id="chat-container"
-        className={styles.chatContainer}
-        style={desktop && { width: `${defaultChatWidth}px` }}
-      >
-        {MessagesTable}
-        {showInput && (
-          <div className={styles.chatTextField}>
-            <ChatTextField enabled={chatEnabled} focusInput={focusInput} />
-          </div>
-        )}
-        {desktop && (
-          <div className={styles.resizeHandle} onMouseDown={startDrag} role="presentation" />
-        )}
-      </div>
+      {/* If Rocket.Chat host, group and token are present, render an iframe to
+          the Rocket.Chat instance. Otherwise fallback to the built-in chat UI. */}
+      {rcHost && rcGroup && rcToken ? (
+        <div id="chat-container" className={styles.chatContainer}>
+          <iframe
+            title="Rocket.Chat"
+            src={`${rcHost.replace(/\/$/, '')}/channel/${encodeURIComponent(
+              rcGroup,
+            )}?token=${encodeURIComponent(rcToken)}`}
+            style={{ width: '100%', height }}
+            frameBorder={0}
+            // allow typical chat-related features; adjust as necessary
+            allow="microphone; camera; clipboard-write; encrypted-media; fullscreen"
+          />
+        </div>
+      ) : (
+        <div
+          aria-live="off"
+          id="chat-container"
+          className={styles.chatContainer}
+          style={desktop && { width: `${defaultChatWidth}px` }}
+        >
+          {MessagesTable}
+          {showInput && (
+            <div className={styles.chatTextField}>
+              <ChatTextField enabled={chatEnabled} focusInput={focusInput} />
+            </div>
+          )}
+          {desktop && (
+            <div className={styles.resizeHandle} onMouseDown={startDrag} role="presentation" />
+          )}
+        </div>
+      )}
       <span className={styles.chatAccessibilityHidden} aria-live="polite">
         <Interweave content={lastMessage} />
       </span>
