@@ -408,7 +408,7 @@ export const ChatContainer: FC<ChatContainerProps> = ({
     >
       {/* If Rocket.Chat host, group and token are present, render an iframe to
           the Rocket.Chat instance. Otherwise fallback to the built-in chat UI. */}
-      {rcHost && rcGroup && rcToken ? (
+      {true ? (
         <div id="chat-container" className={styles.chatContainer}>
           <iframe
             title="Rocket.Chat"
@@ -428,15 +428,15 @@ export const ChatContainer: FC<ChatContainerProps> = ({
           className={styles.chatContainer}
           style={desktop && { width: `${defaultChatWidth}px` }}
         >
-          {/* {MessagesTable}
+          {MessagesTable}
           {showInput && (
             <div className={styles.chatTextField}>
               <ChatTextField enabled={chatEnabled} focusInput={focusInput} />
             </div>
-          )} */}
-          {/* {desktop && (
+          )}
+          {desktop && (
             <div className={styles.resizeHandle} onMouseDown={startDrag} role="presentation" />
-          )} */}
+          )}
         </div>
       )}
       <span className={styles.chatAccessibilityHidden} aria-live="polite">
